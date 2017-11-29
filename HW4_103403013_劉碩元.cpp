@@ -26,20 +26,21 @@ typedef struct linking_list
 {
   int team;
   int value;
-  link_pointer link_before;
+  link_pointer link_before; //雙向linked list
   link_pointer link_after;
 
 };
-link_pointer front_ptr, current_ptr, rear_ptr;
+link_pointer front_ptr, current_ptr, rear_ptr; //current_ptr會是一個動態的指標
 void add(int tim, int number)
 {
+    //會用一個temp的指標來指著即將要插入的新記憶體區塊
     link_pointer temp = (link_pointer) malloc(sizeof(linking_list));
     temp->team = tim;
     temp->value = number;
     temp->link_before = NULL;
     temp->link_after = NULL;
-    //queue is empty
-    if(space==0)
+    
+    if(space==0)//queue is empty
     {
         front_ptr = temp;
         current_ptr = temp;
@@ -51,15 +52,17 @@ void add(int tim, int number)
         link_pointer save_ptr;
         for(int i=0; i<space;i++) // find same team member in the queue
         {
-            if(tim == current_ptr->team)
+            if(tim == current_ptr->team) //current_ptr是從最後一個元素往前找
                 break;
             else
-                current_ptr = current_ptr->link_before;
+                current_ptr = current_ptr->link_before; //若一直沒找到同team的元素，current_ptr會指向null
         }
 
         if(current_ptr != NULL) //means that same team is found in queue
         {
-            save_ptr = current_ptr->link_after; //save the current->link_after before insertion
+	    //save the current->link_after before insertion，需要有一個指標去記得原本current所指的下一個元素，
+            //因為新增的元素也要與後面的元素有所連結 
+            save_ptr = current_ptr->link_after; 
             current_ptr->link_after = temp;
             temp->link_before = current_ptr;
             temp->link_after = save_ptr;
@@ -67,12 +70,13 @@ void add(int tim, int number)
                 save_ptr->link_before = temp;
             else
                 rear_ptr = temp; // when there is only one element in the queue, or the insertion is after the last element
-            current_ptr = rear_ptr;
+            
+	    current_ptr = rear_ptr;
             //cout << current_ptr->value << endl;
 
         }
         else{
-            // can't find any same team in the queue
+            // can't find any same team in the queue，所以會把新的元素插在最後面
             save_ptr = rear_ptr;
             rear_ptr->link_after = temp;
             rear_ptr = temp;
@@ -83,7 +87,6 @@ void add(int tim, int number)
         space++;
 
     }
-    //temp = NULL;
 
     //cout << rear_ptr->value << endl;
 }
@@ -108,7 +111,7 @@ void deletion()
 
     }
     else{
-        save_ptr = front_ptr->link_after;
+        save_ptr = front_ptr->link_after; //要有指標記得原本的第一個記憶體空間指向的下一個元素是誰
         save_ptr->link_before = NULL;
         value = front_ptr->value;
         front_ptr = save_ptr;
